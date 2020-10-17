@@ -88,6 +88,9 @@ protected:
 
 	glm::mat4 _view;
 	glm::mat4 _projection;
+	glm::mat4 _perspective;
+
+	bool isPerspective = false;
 
 	// The view projection, it is mutable so we can re-calculate it during const methods
 	mutable glm::mat4 _viewProjection;
