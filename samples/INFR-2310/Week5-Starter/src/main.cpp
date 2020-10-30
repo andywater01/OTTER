@@ -286,7 +286,7 @@ int main() {
 	std::vector<glm::vec2> uvs;
 
 	VertexArrayObject::sptr theVAO = nullptr;
-	bool loader = ObjLoader::LoadFromFile("TextObject1.obj", positions, uvs, normals);
+	bool loader = ObjLoader::LoadFromFile("SkyBoundCharacter2.obj", positions, uvs, normals);
 
 	theVAO = VertexArrayObject::Create();
 	VertexBuffer::sptr vertices = VertexBuffer::Create();
@@ -312,12 +312,12 @@ int main() {
 	shader->Link();  
 
 	glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 2.0f);
-	glm::vec3 lightCol = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 lightCol = glm::vec3(1.0f, 30.0f, 1.0f);
 	float     lightAmbientPow = 0.05f;
 	float     lightSpecularPow = 10.0f;
-	glm::vec3 ambientCol = glm::vec3(1.0f);
+	glm::vec3 ambientCol = glm::vec3(30.0f);
 	float     ambientPow = 1.0f;
-	float     shininess = 0.2f;
+	float     shininess = 1.2f;
 	// These are our application / scene level uniforms that don't necessarily update
 	// every frame
 	shader->SetUniform("u_LightPos", lightPos);
