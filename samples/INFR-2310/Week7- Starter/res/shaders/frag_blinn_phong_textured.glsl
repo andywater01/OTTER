@@ -23,7 +23,11 @@ uniform float u_LightAttenuationConstant;
 uniform float u_LightAttenuationLinear;
 uniform float u_LightAttenuationQuadratic;
 
+<<<<<<< HEAD
 uniform float u_TextureMix = 0.5f;
+=======
+uniform float u_TextureMix;
+>>>>>>> master
 
 uniform vec3  u_CamPos;
 

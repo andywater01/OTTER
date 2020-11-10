@@ -184,7 +184,10 @@ void RenderVAO(
 	shader->SetUniformMatrix("u_ModelViewProjection", camera->GetViewProjection() * transform->LocalTransform());
 	shader->SetUniformMatrix("u_Model", transform->LocalTransform());
 	shader->SetUniformMatrix("u_NormalMatrix", transform->NormalMatrix());
+<<<<<<< HEAD
 	//shader->SetUniformMatrix("u_TextureMix", transform->NormalMatrix());
+=======
+>>>>>>> master
 	vao->Render();
 }
 
@@ -409,25 +412,37 @@ int main() {
 	materials[0].Specular = specular;
 	materials[0].Shininess = 4.0f;
 	materials[0].NewTexture = NewTexture;
+<<<<<<< HEAD
 	materials[0].TextureMix = 0.5f;
+=======
+>>>>>>> master
 
 	materials[1].Albedo = diffuse;
 	materials[1].Specular = specular;
 	materials[1].Shininess = 16.0f;
 	materials[1].NewTexture = NewTexture;
+<<<<<<< HEAD
 	materials[1].TextureMix = 0.7f;
+=======
+>>>>>>> master
 
 	materials[2].Albedo = diffuse;
 	materials[2].Specular = specular;
 	materials[2].Shininess = 32.0f;
 	materials[2].NewTexture = NewTexture;
+<<<<<<< HEAD
 	materials[2].TextureMix = 0.3f;
+=======
+>>>>>>> master
 
 	materials[3].Albedo = diffuse;
 	materials[3].Specular = specular;
 	materials[3].Shininess = 64.0f;
 	materials[3].NewTexture = NewTexture;
+<<<<<<< HEAD
 	materials[3].TextureMix = 0.4f;
+=======
+>>>>>>> master
 
 
 	camera = Camera::Create();
@@ -502,6 +517,7 @@ int main() {
 			materials[ix].Albedo->Bind(0);
 			materials[ix].Specular->Bind(1);
 			materials[ix].NewTexture->Bind(2);
+<<<<<<< HEAD
 			
 			shader->SetUniform("u_Shininess", materials[ix].Shininess);
 			shader->SetUniform("u_TextureMix", materials[ix].TextureMix);
@@ -509,6 +525,13 @@ int main() {
 			RenderVAO(shader, vaos[ix], camera, transforms[ix]);			
 		}
 		
+=======
+			shader->SetUniform("u_Shininess", materials[ix].Shininess);
+			shader->SetUniform("u_TextureMix", ix / 4.0f);
+
+			RenderVAO(shader, vaos[ix], camera, transforms[ix]);			
+		}
+>>>>>>> master
 
 		RenderImGui();
 
