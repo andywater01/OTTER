@@ -18,7 +18,7 @@ int width, height;
 void loadImage() {
 	int channels;
 	stbi_set_flip_vertically_on_load(true);
-	image = stbi_load("fence.png",
+	image = stbi_load("heightmap.bmp",
 		&width,
 		&height,
 		&channels,
@@ -31,8 +31,6 @@ void loadImage() {
 	}
 
 }
-
-
 
 bool initGLFW() {
 	if (glfwInit() == GLFW_FALSE) {
@@ -53,7 +51,6 @@ bool initGLAD() {
 		return false;
 	}
 }
-
 
 GLuint shader_program;
 
@@ -86,7 +83,7 @@ bool loadShaders() {
 		return false;
 	}
 	const char* fs_str = frag_shader_str.c_str();
-
+	
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vs, 1, &vs_str, NULL);
 	glCompileShader(vs);
@@ -145,57 +142,104 @@ void keyboard() {
 
 }
 
+GLfloat* points2;
+GLfloat* uvs2;
+int numVertices;
+
+void genPlane(int d) {
+	numVertices = 6 * (d * d);
+	points2 = new GLfloat[3*numVertices];
+	uvs2 = new GLfloat[2*numVertices];
+	GLfloat x, y, z;
+	int i = 0;
+	x = -1.0;
+	y = -0.5;
+	z = 1.0;
+
+	int uvcounter = 0;
+
+	for (int col = 0; col < d; col++)
+	for (int row = 0; row < d; row++) {
+
+		points2[i++] = x + row * (2.0 / d);
+		//std::cout << "Px[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = y;
+		//std::cout << "Py[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = z - col * (2.0 / d);
+		//std::cout << "Pz[" << i - 1 << "] = " << points2[i - 1] << "\n";
+
+		uvs2[uvcounter++] = 0.0 + row*(1.0/d);
+		uvs2[uvcounter++] = 0.0 + col*(1.0/d);
+
+		points2[i++] = points2[i-3] + (2.0 / d); //std::cout << points2[i-4] << " " << 2.0/d << "\n";
+		//std::cout << "Px[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = y;
+		//std::cout << "Py[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = points2[i-3];
+		//std::cout << "Pz[" << i - 1 << "] = " << points2[i - 1] << "\n";
+
+		uvs2[uvcounter++] = uvs2[uvcounter-2] + 1.0/d;
+		uvs2[uvcounter++] = uvs2[uvcounter-2];
+
+		points2[i++] = points2[i-6];
+		//std::cout << "Px[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = y;
+		//std::cout << "Py[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = points2[i-3] - (2.0 / d);
+		//std::cout << "Pz[" << i - 1 << "] = " << points2[i - 1] << "\n";
+
+		uvs2[uvcounter++] = uvs2[uvcounter - 4];
+		uvs2[uvcounter++] = uvs2[uvcounter - 2] + 1.0/d;
+
+
+		points2[i++] = points2[i - 6];
+		//std::cout << "Px[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = y;
+		//std::cout << "Py[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = points2[i - 6];
+		//std::cout << "Pz[" << i - 1 << "] = " << points2[i - 1] << "\n";
+
+		uvs2[uvcounter++] = uvs2[uvcounter - 4];
+		uvs2[uvcounter++] = uvs2[uvcounter - 4];
+
+		points2[i++] = points2[i - 3];
+		//std::cout << "Px[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = y;
+		//std::cout << "Py[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = points2[i - 3] - (2.0 / d);
+		//std::cout << "Pz[" << i - 1 << "] = " << points2[i - 1] << "\n";
+
+		uvs2[uvcounter++] = uvs2[uvcounter - 2];
+		uvs2[uvcounter++] = uvs2[uvcounter - 4];
+
+
+		points2[i++] = points2[i - 9];
+		//std::cout << "Px[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = y;
+		//std::cout << "Py[" << i - 1 << "] = " << points2[i - 1] << "\n";
+		points2[i++] = points2[i - 3];
+		//std::cout << "Pz[" << i - 1 << "] = " << points2[i - 1] << "\n";
+
+		uvs2[uvcounter++] = uvs2[uvcounter - 6];
+		uvs2[uvcounter++] = uvs2[uvcounter - 6];
+
+	}
+}
+
 
 
 int main() {
+	
 	//Initialize GLFW
 	if (!initGLFW())
 		return 1;
-
+	
 	//Initialize GLAD
 	if (!initGLAD())
 		return 1;
 
-	// Cube data
-	static const GLfloat points[] = {//front face, 2 triangles
-		-0.5f, -0.5f, 0.5f,//0  front face
-		0.5f, -0.5f, 0.5f, //3
-		-0.5f, 0.5f, 0.5f, //1
-		0.5f, -0.5f, 0.5f, //3
-		0.5f, 0.5f, 0.5f, //2
-		-0.5f, 0.5f, 0.5f, //1
-		0.5f, -0.5f, 0.5f, //3 Right face
-		0.5f, -0.5f, -0.5f, //7
-		0.5f, 0.5f, 0.5f, //2
-		0.5f, -0.5f, -0.5f, //7
-		0.5f, 0.5f, -0.5f, //6
-		0.5f, 0.5f, 0.5f,  //2
-		-0.5f, -0.5f, -0.5f, //4 Left face
-		-0.5f, -0.5f, 0.5f, //0
-		-0.5f, 0.5f, -0.5f, //5
-		-0.5f, -0.5f, 0.5f, //0
-		-0.5f, 0.5f, 0.5f,  //1
-		-0.5f, 0.5f, -0.5f, //5
-		-0.5f, 0.5f, 0.5f,  //1 Top face
-		0.5f, 0.5f, 0.5f,  //2
-		-0.5f, 0.5f, -0.5f,//5
-		0.5f, 0.5f, 0.5f,   //2
-		0.5f, 0.5f, -0.5f, //6
-		-0.5f, 0.5f, -0.5f, //5
-		-0.5f, -0.5f, -0.5f, //4 Bottom face
-		0.5f, -0.5f, -0.5f, //7
-		-0.5f, -0.5f, 0.5f, //0
-		0.5f, -0.5f, -0.5f, //7
-		0.5f, -0.5f, 0.5f, //3
-		-0.5f, -0.5f, 0.5f, //0
-		-0.5f, 0.5f, -0.5f, //5 Back face
-		0.5f, 0.5f, -0.5f, //6
-		-0.5f, -0.5f, -0.5f, //4
-		0.5f, 0.5f, -0.5f, //6
-		0.5f, -0.5f, -0.5f, //7
-		-0.5f, -0.5f, -0.5f, //4
-	};
-
+	// Mesh data
+	genPlane(100);
 
 	// Color data
 	static const GLfloat colors[] = {
@@ -237,57 +281,21 @@ int main() {
 		0.0f, 1.0f, 1.0f
 	};
 	
-	///////// TEXTURES ///////
-	static const GLfloat uv[] = {
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
-	};
-
 	//VBO
 	GLuint pos_vbo = 0;
 	glGenBuffers(1, &pos_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, pos_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (3*numVertices)*sizeof(GLfloat), points2, GL_STATIC_DRAW);
 
 	GLuint color_vbo = 1;
 	glGenBuffers(1, &color_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
 
+	// VAO
+	GLuint vao = 0;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, pos_vbo);
 	
 	//			(index, size, type, normalized, stride, pointer)
@@ -298,14 +306,14 @@ int main() {
 	
 	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
+	
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-
+	   
 	GLuint uv_vbo = 2;
 	glGenBuffers(1, &uv_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, uv_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(uv), uv, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (2*numVertices)*sizeof(GLfloat), uvs2, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, uv_vbo);
 
@@ -315,7 +323,6 @@ int main() {
 	loadImage();
 	
 	GLuint textureHandle;
-	
 	
 	glGenTextures(1, &textureHandle);
 	
@@ -331,10 +338,7 @@ int main() {
 
 	// Release the space used for your image once you're done
 	stbi_image_free(image);
-
-   
-	///////////////////////////
-
+	
 
 	// Load your shaders
 	if (!loadShaders())
@@ -350,7 +354,7 @@ int main() {
 
 	// Camera matrix
 	glm::mat4 View = glm::lookAt(
-		glm::vec3(0, 0, 3), // Camera is at (0,0,3), in World Space
+		glm::vec3(0, 2, 4), // Camera is at (0,0,3), in World Space
 		glm::vec3(0, 0, 0), // and looks at the origin
 		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
@@ -364,24 +368,27 @@ int main() {
 	// Our ModelViewProjection : multiplication of our 3 matrices
 	glm::mat4 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
+		// T * R * S usual order
+	// Or if you want to rotate the object around a certain point
+	// T * R * point T * S
+	
 	// Get a handle for our "MVP" uniform
-	GLuint MatrixID = glGetUniformLocation(shader_program, "MVP");
-
-
-	// Face culling
-	//	glEnable(GL_CULL_FACE);
-	//	glFrontFace(GL_CCW);
-
-	// glCullFace(GL_FRONT); //GL_BACK, GL_FRONT_AND_BACK
-
+// Only during the initialisation
+	GLuint MatrixID = 
+		glGetUniformLocation(shader_program, "MVP");
 
 	// Enable depth buffer
 	glEnable(GL_DEPTH_TEST);
-
-
+	
 	/////// TEXTURE
 	glUniform1i(glGetUniformLocation(shader_program, "myTextureSampler"), 0);
-
+	
+	
+	////// LECTURE 10
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
+	GLuint loc = glGetUniformLocation(shader_program, "time");
+	GLfloat time = 0.0f;
 	
 	///// Game loop /////
 	while (!glfwWindowShouldClose(window)) {
@@ -391,9 +398,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shader_program);
-
-		//Model = glm::mat4(1.0f);
-
+		
 		keyboard();
 		
 		Model = glm::rotate(Model, glm::radians(ry), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -402,15 +407,15 @@ int main() {
 		mvp = Projection * View * Model;
 		rx = ry = tz = 0;
 		
-		//Lecture 04
-		// Send our transformation to the currently bound shader, in the "MVP" uniform
-		// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
 		glUniformMatrix4fv(MatrixID, 1, 
 			GL_FALSE, &mvp[0][0]);
 
-		
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//Lecture 10b
+		glUniform1f(loc, time);
+		time += 0.1f;
+		///////
 
+		glDrawArrays(GL_TRIANGLES, 0, numVertices);
 
 		glfwSwapBuffers(window);
 	}
