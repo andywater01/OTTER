@@ -18,7 +18,8 @@ int width, height;
 void loadImage() {
 	int channels;
 	stbi_set_flip_vertically_on_load(true);
-	image = stbi_load("heightmap.bmp",
+	//image = stbi_load("CGHeightMap.png",
+	image = stbi_load("GreyHeightMap.png",
 		&width,
 		&height,
 		&channels,
@@ -29,7 +30,7 @@ void loadImage() {
 	else {
 		std::cout << "Failed to load image!" << std::endl;
 	}
-
+	
 }
 
 bool initGLFW() {
@@ -57,7 +58,7 @@ GLuint shader_program;
 bool loadShaders() {
 	// Read Shaders from file
 	std::string vert_shader_str;
-	std::ifstream vs_stream("vertex_shader.glsl", std::ios::in);
+	std::ifstream vs_stream("Terrain_Vert.glsl", std::ios::in);
 	if (vs_stream.is_open()) {
 		std::string Line = "";
 		while (getline(vs_stream, Line))
@@ -69,9 +70,9 @@ bool loadShaders() {
 		return false;
 	}
 	const char* vs_str = vert_shader_str.c_str();
-
+	
 	std::string frag_shader_str;
-	std::ifstream fs_stream("frag_shader.glsl", std::ios::in);
+	std::ifstream fs_stream("Terrain_Frag .glsl", std::ios::in);
 	if (fs_stream.is_open()) {
 		std::string Line = "";
 		while (getline(fs_stream, Line))
@@ -240,6 +241,7 @@ int main() {
 
 	// Mesh data
 	genPlane(100);
+	//genPlane(100);
 
 	// Color data
 	static const GLfloat colors[] = {
